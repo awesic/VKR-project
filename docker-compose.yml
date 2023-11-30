@@ -28,7 +28,7 @@ services:
     env_file:
       - .env
 
-#  front:
+#  frontend:
 #    image: nginx
 #    container_name: frontend
 
