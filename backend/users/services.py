@@ -1,8 +1,30 @@
-import datetime
-from django.utils.translation import gettext_lazy as _
-from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+from users import serializers
 
 
-def year_validation(value):
-    if value < datetime.datetime.now().year:
-        raise ValidationError(_(f"{value} is not a correct year!"))
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+def register(request):
+    serializer = serializers.UserSerializer(data=request.data)
+    user = None
+    token = None
+    if str(request.data.get('role')).lower() == 'student':
+        serializer = serializers.StudentRegisterSerializer(data=request.data)
+
+    elif str(request.data.get('role')).lower() == 'teacher':
+        serializer = serializers.TeacherRegisterSerializer(data=request.data)
+
+    if serializer.is_valid():
+        user = serializer.create(serializer.validated_data)
+#             user = serializers.UserSerializer(user)
+    if user:
+        token = get_tokens_for_user(user)
+
+    return token

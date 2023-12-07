@@ -1,13 +1,15 @@
-import {register} from "../actions/auth";
-import React, {useState} from "react";
-import {Navigate} from "react-router-dom";
-import {connect} from "react-redux";
-import {Button, Container, Form} from "react-bootstrap";
+// import {register} from "../actions/auth";
+import React, {useEffect, useState} from "react";
+import {Link, Navigate, useNavigate} from "react-router-dom";
+import {connect, useDispatch, useSelector} from "react-redux";
+import {Button, Container, Form, Spinner} from "react-bootstrap";
 import MainInputFields from "../components/MainInputFields";
 import Radios from "../components/Radios";
-import CSRFToken from "../components/CSRFToken";
+// import CSRFToken from "../components/CSRFToken";
+import Layout from "../hocs/Layout";
+import {reset, register, getUserInfo} from "../features/authSlice";
 
-const Signup = ({register, isAuthenticated}) => {
+const Signup = () => {
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -17,12 +19,19 @@ const Signup = ({register, isAuthenticated}) => {
         password2: "",
         // institute: "",
         // specialization: "",
-        graduate_year: new Date().getFullYear()
+        graduate_year: new Date().getFullYear(),
+        role: ""
     });
-    const [created, setCreated] = useState(false);
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const { user, loading, isError, isSuccess, message } = useSelector((state) => state.user)
+
+    // const [created, setCreated] = useState(false);
     const [validated, setValidated] = useState(false);
     const [errors, setErrors] = useState({});
-    const [role, setRole] = useState("");
+    // const [role, setRole] = useState("");
     const ValidateValue = (InputValue) => {
         let errors = {};
         if (InputValue.password !== InputValue.password2) {
@@ -55,48 +64,62 @@ const Signup = ({register, isAuthenticated}) => {
             e.stopPropagation();
         }
         if (formData.password === formData.password2 && formData.password !== "") {
-            const registerUser = async () => {
-                await register(formData, role);
-                setCreated(true);
-            }
-            registerUser();
+            // const registerUser = async () => {
+            //     await register(formData, role);
+            //     setCreated(true);
+            // }
+            // registerUser();
+            dispatch(register(formData))
         } else {
             e.stopPropagation();
         }
         setValidated(true);
     };
 
-    if (isAuthenticated) {
-        return <Navigate to={"/home"} />;
-    } else if (created) {
-        return <Navigate to={"/login"}/>;
-    }
+    useEffect(() => {
+        if (isError) {
+            setErrors(message)
+        }
+        if (isSuccess || user) {
+            navigate("/home")
+        }
+        dispatch(reset())
+        dispatch(getUserInfo())
+    }, [isError, isSuccess, user, navigate, dispatch]);
+
+    // if (user) {
+    //     navigate("/home")
+    // }
 
     return (
-        <Container className={"justify-content-center align-items-center d-flex flex-column min-vh-100"}>
-            <div className={"justify-content-center align-items-center fs-1 fw-bold mb-4"}>
-                <div>Регистрация</div>
-            </div>
-            <Form noValidate validated={validated} onSubmit={handleSubmit}
-                  className={"align-items-center justify-content-center align-self-center text-center"}
-                  style={{minWidth: '38vh'}}>
-                <CSRFToken />
-                <MainInputFields formData={formData} setFormData={setFormData} errors={errors}/>
-                <Radios formData={formData} setFormData={setFormData} errors={errors} role={role} setRole={setRole}/>
-                <Button variant="primary" type="submit" className={"fw-medium rounded-4"}>ЗАРЕГИСТРИРОВАТЬСЯ</Button>
-            </Form>
-            <div className={"mt-3 mb-3"}>
-                <p className={"mb-0 text-center"}>
-                    Уже есть аккаунт?{" "}
-                    <a href={"/login"} className={"text-primary fw-bold"}>Войти</a>
-                </p>
-            </div>
-        </Container>
+        <Layout title={"Регистрация"} content={"Странтца регистрации"}>
+            <Container className={"justify-content-center align-items-center d-flex flex-column min-vh-100"}>
+                <div className={"justify-content-center align-items-center fs-1 fw-bold mb-4"}>
+                    <div>Регистрация</div>
+                </div>
+                {loading ? <Spinner animation={"border"} variant={"secondary"}/> : null }
+                <Form noValidate validated={validated} onSubmit={handleSubmit}
+                      className={"align-items-center justify-content-center align-self-center text-center"}
+                      style={{minWidth: '38vh'}}>
+                    {/*<CSRFToken/>*/}
+                    <MainInputFields formData={formData} setFormData={setFormData} errors={errors}/>
+                    <Radios formData={formData} setFormData={setFormData} errors={errors}/>
+                    <Button variant="primary" type="submit"
+                            className={"fw-medium rounded-4"}>ЗАРЕГИСТРИРОВАТЬСЯ</Button>
+                </Form>
+                <div className={"mt-3 mb-3"}>
+                    <p className={"mb-0 text-center"}>
+                        Уже есть аккаунт?{" "}
+                        <Link to={"/login"} className={"text-primary fw-bold"}>Войти</Link>
+                    </p>
+                </div>
+            </Container>
+        </Layout>
     );
 };
-
-const mapStateToProps = state => ({
-    isAuthenticated: state.auth.isAuthenticated,
-})
-
-export default connect(mapStateToProps, {register})(Signup);
+export default Signup
+// const mapStateToProps = state => ({
+//     isAuthenticated: state.auth.isAuthenticated,
+// })
+//
+// export default connect(mapStateToProps, {register})(Signup);

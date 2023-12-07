@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
 from users.models import User, Student, Teacher
-from users import serializers
+from users import serializers, services
 
 
 class CheckAuthentication(views.APIView):
@@ -22,7 +22,7 @@ class CheckAuthentication(views.APIView):
             return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
+# @method_decorator(ensure_csrf_cookie, name="dispatch")
 class GetCSRFToken(views.APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -30,52 +30,85 @@ class GetCSRFToken(views.APIView):
         return Response({"success": "CSRF cookie set"}, status=status.HTTP_200_OK)
 
 
-@method_decorator(csrf_protect, name="dispatch")
-# class AdminRegisterView(generics.CreateAPIView):
-#     serializer_class = serializers.UserSerializer
-#     queryset = User.objects.filter(role=User.Roles.ADMIN)
-#     permission_classes = [permissions.AllowAny]
-class AdminRegisterView(views.APIView):
-    """
-    Register a new Admin user and automatically login
-    """
-    authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
+# @method_decorator(csrf_protect, name="dispatch")
+# # class AdminRegisterView(generics.CreateAPIView):
+# #     serializer_class = serializers.py.UserSerializer
+# #     queryset = User.objects.filter(role=User.Roles.ADMIN)
+# #     permission_classes = [permissions.AllowAny]
+# class AdminRegisterView(views.APIView):
+#     """
+#     Register a new Admin user and automatically login
+#     """
+#     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
+#
+#     def post(self, request):
+#         serializer = serializers.py.UserSerializer(data=self.request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         auth_user = serializers.py.LoginSerializer(data=self.request.data)
+#         auth_user.is_valid(raise_exception=True)
+#         user = auth_user.validated_data['user']
+#         if user:
+#             login(request, user)
+#             return Response({'success': _('User created successfully')},
+#                             status=status.HTTP_201_CREATED)
+#         return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class UserRegisterView(views.APIView):
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = serializers.UserSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        auth_user = serializers.LoginSerializer(data=self.request.data)
-        auth_user.is_valid(raise_exception=True)
-        user = auth_user.validated_data['user']
-        if user:
-            login(request, user)
-            return Response({'success': _('User created successfully')},
-                            status=status.HTTP_201_CREATED)
-        return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            token = services.register(request)
+            if not token:
+                return Response({"error": "Wrong credentials"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(token, status=status.HTTP_201_CREATED)
+        except:
+            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(csrf_protect, name="dispatch")
+# @method_decorator(csrf_protect, name="dispatch")
 class StudentRegisterView(generics.CreateAPIView):
     serializer_class = serializers.StudentRegisterSerializer
     queryset = Student.objects.all()
     permission_classes = [permissions.AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = serializers.StudentRegisterSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            student = serializer.create(serializer.validated_data)
+            student = serializers.StudentSerializer(student)
+            return Response(student.data, status=status.HTTP_201_CREATED)
+        except:
+            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
-@method_decorator(csrf_protect, name="dispatch")
+
+# @method_decorator(csrf_protect, name="dispatch")
 class TeacherRegisterView(generics.CreateAPIView):
     serializer_class = serializers.TeacherRegisterSerializer
     queryset = Teacher.objects.all()
     permission_classes = [permissions.AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = serializers.TeacherRegisterSerializer(data=request.data)
+            if not serializer.valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            teacher = serializer.create(serializer.validated_data)
+            teacher = serializers.TeacherSerializer(teacher)
+            return Response(teacher.data, status=status.HTTP_201_CREATED)
+        except:
+            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UsersListView(generics.ListAPIView):
     serializer_class = serializers.UserSerializer
     queryset = User.objects.all()
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
 
 
-@method_decorator(csrf_protect, name="dispatch")
+# @method_decorator(csrf_protect, name="dispatch")
 class LoginView(views.APIView):
     permission_classes = [permissions.AllowAny]
 

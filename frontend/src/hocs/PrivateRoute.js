@@ -1,22 +1,22 @@
 import React from "react";
 import {Navigate, Outlet, useLocation} from "react-router-dom"
-import {connect} from "react-redux";
+import {useSelector} from "react-redux";
+// import {connect} from "react-redux";
 
-const PrivateRoute = ({isAuthenticated, allowedRoles, roles}) => {
+const PrivateRoute = ({allowedRoles, children}) => {
     const location = useLocation();
-    console.log(roles)
-    console.log(roles.find(role => allowedRoles.includes(role)))
-
+    const {userInfo} = useSelector((state) => state.user)
+    console.log(userInfo)
     return (
-        isAuthenticated
-        && roles?.find(role => allowedRoles?.includes(role))
-         ? <Outlet/> : <Navigate to={"/login"} state={{ from: location }} replace/>
+        userInfo
+        && allowedRoles?.includes(userInfo?.role?.toString().toLowerCase())
+         ? children : <Navigate to={"/login"} state={{from: location}}/>
     );
 };
-
-const mapStateToProps = state => ({
-    isAuthenticated: state.auth.isAuthenticated,
-    roles: [state.profile.profile.role]
-});
-
-export default connect(mapStateToProps, {})(PrivateRoute);
+export default PrivateRoute
+// const mapStateToProps = state => ({
+//     isAuthenticated: state.auth.isAuthenticated,
+//     roles: [state.profile.profile.role]
+// });
+//
+// export default connect(mapStateToProps, {})(PrivateRoute);

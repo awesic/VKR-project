@@ -15,7 +15,7 @@ class UserAdmin(admin.ModelAdmin):
     )
     fieldsets = (
         (None, {
-            'fields': ('email', 'password', 'role', 'first_name', 'last_name')
+            'fields': ('email', 'password', 'role', 'first_name', 'last_name', 'patronymic')
         }),
         ('Permissions', {
             'fields': ('is_superuser', 'is_staff')

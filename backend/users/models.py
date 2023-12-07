@@ -1,9 +1,17 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import ValidationError
 
-from users.services import year_validation
 from users.managers import UserManager
+from directions.models import Direction, Institute
+
+
+def year_validation(value):
+    if value < datetime.datetime.now().year:
+        raise ValidationError(_(f"{value} is not a correct year!"))
 
 
 class User(AbstractUser):
@@ -48,8 +56,11 @@ class Teacher(User):
     """
     Custom teacher model that create teachers additional fields
     """
-    institute = models.CharField(_("institute"), max_length=150, blank=True)
-    direction = models.CharField(_("direction"), max_length=150, blank=True)
+    # institute = models.CharField(_("institute"), max_length=150, blank=True)
+    # direction = models.CharField(_("direction"), max_length=150, blank=True)
+    institute = models.ForeignKey(Institute, related_name='institute_teach', on_delete=models.DO_NOTHING, blank=True)
+    direction = models.ForeignKey(
+        Direction, related_name='direction_teach', on_delete=models.DO_NOTHING, max_length=150, blank=True)
 
     # students = ArrayField(models.CharField(max_length=150), blank=True, default=list)
 
@@ -64,8 +75,11 @@ class Student(User):
     """
     Custom student model that create students additional fields
     """
-    institute = models.CharField(_("institute"), max_length=150, blank=True)
-    direction = models.CharField(_("direction"), max_length=150, blank=True)
+    # institute = models.CharField(_("institute"), max_length=150, blank=True)
+    # direction = models.CharField(_("direction"), max_length=150, blank=True)
+    institute = models.ForeignKey(Institute, related_name='institute_stud', on_delete=models.DO_NOTHING, blank=True)
+    direction = models.ForeignKey(Direction, related_name='direction_stud', on_delete=models.DO_NOTHING, max_length=150,
+                                  blank=True)
     graduate_year = models.PositiveSmallIntegerField(_("graduate year"),
                                                      validators=[year_validation], blank=True, null=True)
     prefer_teacher = models.ForeignKey(Teacher, related_name=_("prefer_teacher"), on_delete=models.DO_NOTHING,

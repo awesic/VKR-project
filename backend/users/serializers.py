@@ -34,6 +34,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    """
+    Serializer for show admin user
+    """
     class Meta:
         model = User
         fields = ['id', 'email', 'first_name', 'last_name', 'patronymic', 'role']
@@ -65,7 +68,7 @@ class TeacherRegisterSerializer(serializers.ModelSerializer):
             , last_name=validated_data['last_name']
             , patronymic=validated_data['patronymic']
             , institute=validated_data['institute']
-            , specialization=validated_data['direction']
+            , direction=validated_data['direction']
             , role='TEACHER'
         )
         teacher.set_password(validated_data['password'])
@@ -99,7 +102,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
             , last_name=validated_data['last_name']
             , patronymic=validated_data['patronymic']
             , institute=validated_data['institute']
-            , specialization=validated_data['direction']
+            , direction=validated_data['direction']
             , graduate_year=validated_data['graduate_year']
             , role='STUDENT'
         )
