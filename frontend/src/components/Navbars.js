@@ -33,8 +33,6 @@ const Navbars = () => {
                     <Nav className="me-auto">
                         <NavLink to={"/home"} className={"nav-link"}>Home</NavLink>
                         {userInfo.role === "STUDENT" ? studentLinks : null}
-                        <Nav.Link href="#features">Features</Nav.Link>
-                        <Nav.Link href="#pricing">Pricing</Nav.Link>
                     </Nav>
                     <Nav>
                         <NavDropdown title={userInfo.email} id="collapsible-nav-dropdown">

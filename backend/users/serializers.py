@@ -73,6 +73,7 @@ class TeacherRegisterSerializer(serializers.ModelSerializer):
         )
         teacher.set_password(validated_data['password'])
         teacher.save()
+        teacher = authenticate(email=validated_data['email'], password=validated_data['password'])
         return teacher
 
 
@@ -108,6 +109,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
         )
         student.set_password(validated_data['password'])
         student.save()
+        student = authenticate(email=validated_data['email'], password=validated_data['password'])
         return student
 
 
@@ -141,7 +143,17 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    teacher_email = serializers.EmailField(source='prefer_teacher.email', read_only=True, allow_blank=True)
+    teacher_full_name = serializers.CharField(source='prefer_teacher.get_full_name', read_only=True, allow_blank=True)
 
+    class Meta:
+        model = Student
+        fields = ['id', 'email', 'first_name', 'last_name', 'patronymic',
+                  'institute', 'direction', 'graduate_year',
+                  'theme', 'theme_approved', 'prefer_teacher', 'teacher_email', 'teacher_full_name', 'teacher_approved', 'role']
+
+
+class StudentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['id', 'email', 'first_name', 'last_name', 'patronymic',

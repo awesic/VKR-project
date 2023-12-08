@@ -43,7 +43,6 @@ const Login = () => {
         // loginUser();
         setValidated(true);
     };
-    console.log(fromPage)
     useEffect(() => {
         if (isError) {
             setError("Не правильная почта или пароль!")

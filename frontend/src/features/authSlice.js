@@ -20,7 +20,9 @@ export const register = createAsyncThunk(
         try {
             return await authService.register(userData)
         } catch (error) {
-            const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
+            const message = (error.response && error.response.data
+                && error.response.data.message) ||
+                error.message || error.toString()
 
             return thunkAPI.rejectWithValue(message)
         }
@@ -44,8 +46,10 @@ export const login = createAsyncThunk(
 
 export const logout = createAsyncThunk(
     "logout",
-    async () => {
-        authService.logout()
+    async (_, thunkAPI) => {
+        const accessToken = thunkAPI.getState().user.user.access
+        const refreshToken = thunkAPI.getState().user.user.refresh
+        await authService.logout(accessToken, refreshToken)
     }
 )
 
@@ -55,6 +59,38 @@ export const getUserInfo = createAsyncThunk(
         try {
             const accessToken = thunkAPI.getState().user.user.access
             return await authService.getUserInfo(accessToken)
+        } catch (error) {
+            const message = (error.response && error.response.data
+                && error.response.data.message) ||
+                error.message || error.toString()
+
+            return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
+
+export const changeStudentTheme = createAsyncThunk(
+    "student/change",
+    async (new_theme, thunkAPI) => {
+        try {
+            const accessToken = thunkAPI.getState().user.user.access
+            return await authService.changeStudentTheme(accessToken, new_theme)
+        } catch (error) {
+            const message = (error.response && error.response.data
+                && error.response.data.message) ||
+                error.message || error.toString()
+
+            return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
+
+export const changeStudentTeacher = createAsyncThunk(
+    "student/change",
+    async (prefer_teacher, thunkAPI) => {
+        try {
+            const accessToken = thunkAPI.getState().user.user.access
+            return await authService.changeStudentTeacher(accessToken, prefer_teacher)
         } catch (error) {
             const message = (error.response && error.response.data
                 && error.response.data.message) ||

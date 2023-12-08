@@ -58,9 +58,9 @@ class Teacher(User):
     """
     # institute = models.CharField(_("institute"), max_length=150, blank=True)
     # direction = models.CharField(_("direction"), max_length=150, blank=True)
-    institute = models.ForeignKey(Institute, related_name='institute_teach', on_delete=models.DO_NOTHING, blank=True)
+    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
     direction = models.ForeignKey(
-        Direction, related_name='direction_teach', on_delete=models.DO_NOTHING, max_length=150, blank=True)
+        Direction, related_name='+', on_delete=models.DO_NOTHING, max_length=150, blank=True)
 
     # students = ArrayField(models.CharField(max_length=150), blank=True, default=list)
 
@@ -77,12 +77,12 @@ class Student(User):
     """
     # institute = models.CharField(_("institute"), max_length=150, blank=True)
     # direction = models.CharField(_("direction"), max_length=150, blank=True)
-    institute = models.ForeignKey(Institute, related_name='institute_stud', on_delete=models.DO_NOTHING, blank=True)
-    direction = models.ForeignKey(Direction, related_name='direction_stud', on_delete=models.DO_NOTHING, max_length=150,
+    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
+    direction = models.ForeignKey(Direction, related_name='+', on_delete=models.DO_NOTHING, max_length=150,
                                   blank=True)
     graduate_year = models.PositiveSmallIntegerField(_("graduate year"),
                                                      validators=[year_validation], blank=True, null=True)
-    prefer_teacher = models.ForeignKey(Teacher, related_name=_("prefer_teacher"), on_delete=models.DO_NOTHING,
+    prefer_teacher = models.ForeignKey(Teacher, related_name='+', on_delete=models.DO_NOTHING,
                                        blank=True, null=True)
     teacher_approved = models.BooleanField(_("teacher approved"), default=False)
     theme = models.CharField(_("theme"), max_length=150, blank=True)

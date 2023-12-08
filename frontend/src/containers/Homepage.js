@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import Footer from "../components/Footer";
 import {useSelector} from "react-redux";
 import {Badge, Button, Card, CardGroup, Col, Container, Nav, Row} from "react-bootstrap";
-import {FQWTheme} from "../components/students/StudentPage";
+import {FQWTheme, PreferTeacher} from "../components/students/StudentPage";
 
 function Homepage() {
     const {userInfo} = useSelector((state) => state.user)
@@ -12,20 +12,7 @@ function Homepage() {
     const studentLinks = (
         <Fragment>
             <FQWTheme userInfo={userInfo}/>
-            <Col>
-                <Card>
-                    <Card.Header as="h4">Научный руководитель</Card.Header>
-                    <Card.Body>
-                        <Card.Title className={"d-flex justify-content-between"}>
-                            {userInfo.prefer_teacher ? userInfo.prefer_teacher : "Преподаватель не выбран"}
-                            <Badge pill
-                                   className={"bg-success-subtle border border-success-subtle text-success-emphasis"}>
-                                Не выбран</Badge>
-                        </Card.Title>
-                        <Button className={"mt-2 fw-medium"} variant="outline-dark">Изменить</Button>
-                    </Card.Body>
-                </Card>
-            </Col>
+            <PreferTeacher userInfo={userInfo}/>
             <Col>
                 <Card>
                     <Card.Header as="h4">Статус выполнения ВКР</Card.Header>

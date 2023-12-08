@@ -1,10 +1,11 @@
 from django.contrib.auth import login, logout, authenticate
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions, status, generics, views, authentication
+from rest_framework import permissions, status, generics, views, authentication, filters
 from rest_framework.response import Response
 from rest_framework import viewsets
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import User, Student, Teacher
 from users import serializers, services
@@ -66,69 +67,35 @@ class UserRegisterView(views.APIView):
             return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @method_decorator(csrf_protect, name="dispatch")
-class StudentRegisterView(generics.CreateAPIView):
-    serializer_class = serializers.StudentRegisterSerializer
-    queryset = Student.objects.all()
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            serializer = serializers.StudentRegisterSerializer(data=request.data)
-            if not serializer.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            student = serializer.create(serializer.validated_data)
-            student = serializers.StudentSerializer(student)
-            return Response(student.data, status=status.HTTP_201_CREATED)
-        except:
-            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @method_decorator(csrf_protect, name="dispatch")
-class TeacherRegisterView(generics.CreateAPIView):
-    serializer_class = serializers.TeacherRegisterSerializer
-    queryset = Teacher.objects.all()
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            serializer = serializers.TeacherRegisterSerializer(data=request.data)
-            if not serializer.valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            teacher = serializer.create(serializer.validated_data)
-            teacher = serializers.TeacherSerializer(teacher)
-            return Response(teacher.data, status=status.HTTP_201_CREATED)
-        except:
-            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
-
-
 class UsersListView(generics.ListAPIView):
     serializer_class = serializers.UserSerializer
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
 
 
-# @method_decorator(csrf_protect, name="dispatch")
 class LoginView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = serializers.LoginSerializer(data=self.request.data)
+        serializer = serializers.LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         if user:
-            login(request, user)
-            return Response({'success': 'Logged in successfully'}, status=status.HTTP_202_ACCEPTED)
+            token = services.get_tokens_for_user(user)
+            return Response(token, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(views.APIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request):
         try:
-            logout(request)
-            return Response({'success': _('You have been logged out.')}, status=status.HTTP_200_OK)
+            refresh_token = request.data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({'success': _('You have been logged out.')}, status=status.HTTP_205_RESET_CONTENT)
         except:
             return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -162,9 +129,12 @@ class StudentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.StudentSerializer
 
 
-class TeacherViewSet(viewsets.ModelViewSet):
+class TeacherViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows students to be viewed or edited
     """
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Teacher.objects.all()
     serializer_class = serializers.TeacherSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['email', 'first_name', 'last_name']

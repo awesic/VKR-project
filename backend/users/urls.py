@@ -10,7 +10,7 @@ urlpatterns = [
     path('account/profile', views.ProfileView.as_view(), name='profile'),
 
     path('token', TokenObtainPairView.as_view()),
-    path('token/refresh', TokenRefreshView.as_view()),
+    path('token/refresh/', TokenRefreshView.as_view()),
     path('token/verify/', TokenVerifyView.as_view()),
 
     # path('csrf_cookie', views.GetCSRFToken.as_view(), name='csrf_token'),
