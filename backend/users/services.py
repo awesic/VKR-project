@@ -1,3 +1,4 @@
+from django.contrib.auth import login, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from users import serializers
 
@@ -14,7 +15,7 @@ def get_tokens_for_user(user):
 def register(request):
     serializer = serializers.UserSerializer(data=request.data)
     user = None
-    token = None
+    # token = None
     if str(request.data.get('role')).lower() == 'student':
         serializer = serializers.StudentRegisterSerializer(data=request.data)
 
@@ -25,6 +26,9 @@ def register(request):
         user = serializer.create(serializer.validated_data)
 #             user = serializers.UserSerializer(user)
     if user:
-        token = get_tokens_for_user(user)
+        user = authenticate(email=user.email, password=request.data.get('password'))
+        login(request, user)
+        # token = get_tokens_for_user(user)
 
-    return token
+    # return token
+    return user

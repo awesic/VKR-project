@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {Button, Container, FloatingLabel, Form, Spinner} from "react-bootstrap";
-import {Link, Navigate, useLocation, useNavigate} from "react-router-dom";
-// import CSRFToken from "../components/CSRFToken";
-// import {login} from "../actions/auth";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import Layout from "../hocs/Layout";
-import {reset, login, getUserInfo} from "../features/authSlice";
-import {useDispatch, useSelector} from "react-redux";
+import CSRFToken from "../components/CSRFToken";
+import {useStore} from "../store/useStore";
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -14,12 +12,12 @@ const Login = () => {
     })
     const {email, password} = formData
 
-    const dispatch = useDispatch()
     const navigate = useNavigate()
     const location = useLocation()
     const fromPage = location.state?.from?.pathname || "/home"
 
-    const { user, loading, isError, isSuccess, message } = useSelector((state) => state.user)
+    const { user, loading, isError, isSuccess, message, login, reset, getUserInfo } = useStore()
+    console.log("login", user)
 
     const [validated, setValidated] = useState(false)
     const [error, setError] = useState("")
@@ -34,31 +32,19 @@ const Login = () => {
         }
 
         const userData = {email, password}
-        dispatch(login(userData))
-        // const loginUser = async () => {
-        //     await login(email, password);
-        //     if (!isAuthenticated)
-        //         setError("Не правильная почта или пароль!")
-        // }
-        // loginUser();
+        login(userData)
         setValidated(true);
     };
     useEffect(() => {
         if (isError) {
             setError("Не правильная почта или пароль!")
-        }
-
-        if (isSuccess || user) {
+        } else if (isSuccess && user) {
             navigate(fromPage)
+            getUserInfo()
         }
 
-        dispatch(reset())
-        dispatch(getUserInfo())
-    }, [isError, isSuccess, user, navigate, dispatch]);
-
-    // if (user) {
-    //     return navigate(fromPage)
-    // }
+        reset()
+    }, [isError, isSuccess, user, navigate]);
 
     return (
         <Layout title={"Вход"} content={"Страница входа"}>
@@ -70,7 +56,7 @@ const Login = () => {
                 <Form noValidate validated={validated} onSubmit={e => handleSubmit(e)}
                       className={"align-items-center justify-content-center align-self-center text-center"}
                       style={{minWidth: '38vh'}}>
-                    {/*<CSRFToken/>*/}
+                    <CSRFToken/>
                     <Form.Label className={"text-start text-danger"}>
                         {error ? error : null}
                     </Form.Label>
@@ -118,7 +104,3 @@ const Login = () => {
     );
 }
 export default Login
-// const mapStateToProps = state => ({
-//     isAuthenticated: state.auth.isAuthenticated,
-// })
-// export default connect(mapStateToProps, {login})(Login);

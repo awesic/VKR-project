@@ -1,52 +1,47 @@
 import React, {Fragment} from 'react'
 import Navbars from "../components/Navbars";
-import {Link} from "react-router-dom";
 import Footer from "../components/Footer";
-import {useSelector} from "react-redux";
-import {Badge, Button, Card, CardGroup, Col, Container, Nav, Row} from "react-bootstrap";
-import {FQWTheme, PreferTeacher} from "../components/students/StudentPage";
+import {Button, Card, Col, Container, Row} from "react-bootstrap";
+import {FQWStatus, FQWTheme, PreferTeacher} from "../components/students/StudentPage";
+import Layout from "../hocs/Layout";
+import {useStore} from "../store/useStore";
+import {useShallow} from "zustand/react/shallow";
 
 function Homepage() {
-    const {userInfo} = useSelector((state) => state.user)
+    const user = useStore(useShallow((state)=>state.user))
 
     const studentLinks = (
         <Fragment>
-            <FQWTheme userInfo={userInfo}/>
-            <PreferTeacher userInfo={userInfo}/>
-            <Col>
-                <Card>
-                    <Card.Header as="h4">Статус выполнения ВКР</Card.Header>
-                    <Card.Body>
-                        <Card.Title>{userInfo.email}</Card.Title>
-                        <Button className={"mt-2 fw-medium"} variant="outline-dark">Изменить</Button>
-                    </Card.Body>
-                </Card>
-            </Col>
+            <FQWTheme user={user}/>
+            <PreferTeacher/>
+            <FQWStatus/>
         </Fragment>
     )
 
     return (
-        <Fragment>
-            <Navbars/>
-            <Container className={"mt-4"}>
-                <Row xs={1} md={2} className="g-4">
-                    {userInfo.role === "STUDENT" && studentLinks}
-                    <Col>
-                        <Card>
-                            <Card.Header as="h5">Featured</Card.Header>
-                            <Card.Body>
-                                <Card.Title>Special title treatment</Card.Title>
-                                <Card.Text>
-                                    With supporting text below as a natural lead-in to additional content.
-                                </Card.Text>
-                                <Button variant="primary">Go somewhere</Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-            <Footer/>
-        </Fragment>
+        <Layout title={"Главная"} content={"Главная страница"}>
+            <Fragment>
+                <Navbars/>
+                <Container className={"mt-4"}>
+                    <Row xs={1} md={2} className="g-4">
+                        {user.role === "STUDENT" && studentLinks}
+                        <Col>
+                            <Card>
+                                <Card.Header as="h5">Featured</Card.Header>
+                                <Card.Body>
+                                    <Card.Title>Special title treatment</Card.Title>
+                                    <Card.Text>
+                                        With supporting text below as a natural lead-in to additional content.
+                                    </Card.Text>
+                                    <Button variant="primary">Go somewhere</Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+                <Footer/>
+            </Fragment>
+        </Layout>
     )
 }
 

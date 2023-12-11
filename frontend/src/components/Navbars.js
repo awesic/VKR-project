@@ -1,29 +1,20 @@
-import React, {Fragment} from "react";
+import React from "react";
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
-// import {connect} from "react-redux";
-// import {logout} from "../actions/auth";
 import {Link, NavLink, useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {logout, reset} from "../features/authSlice";
+import {useStore} from "../store/useStore";
 
 const Navbars = () => {
 
     const navigate = useNavigate()
-    const dispatch = useDispatch()
 
-    const {userInfo} = useSelector((state) => state.user)
-
+    const {user, logout, reset} = useStore()
     const handleLogout = () => {
-        dispatch(logout())
-        dispatch(reset())
+        logout()
+        console.log("LOG OUT ",user)
+        reset()
         navigate("/login")
     }
 
-    const studentLinks = (
-        // <Fragment>
-            <NavLink to={"/student/dashboard"} className={"nav-link"}>Dash</NavLink>
-        // </Fragment>
-    )
     return (
         <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
             <Container>
@@ -32,10 +23,9 @@ const Navbars = () => {
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
                         <NavLink to={"/home"} className={"nav-link"}>Home</NavLink>
-                        {userInfo.role === "STUDENT" ? studentLinks : null}
                     </Nav>
                     <Nav>
-                        <NavDropdown title={userInfo.email} id="collapsible-nav-dropdown">
+                        <NavDropdown title={user.email} id="collapsible-nav-dropdown">
                             <NavDropdown.Item href="/login" onClick={handleLogout}
                                               className={"text-danger fw-semibold"}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -55,8 +45,3 @@ const Navbars = () => {
     );
 };
 export default Navbars
-// const mapStateToProps = state => ({
-//     profile: state.profile.profile
-// })
-//
-// export default connect(mapStateToProps, {logout})(Navbars);

@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework import generics, views, status, exceptions
 from rest_framework.response import Response
 
 from users.permissions import IsStudent, IsTeacher
 from users import models, serializers
+from main.services import map_status_list_to_json
 
 
 class ThemePreferTeacherChangeView(generics.UpdateAPIView):
@@ -37,6 +38,7 @@ class ThemePreferTeacherChangeView(generics.UpdateAPIView):
 
 class AdminActionsView(generics.UpdateAPIView):
     permission_classes = [IsAdminUser]
+    serializer_class = serializers.StudentSerializer
 
     def put(self, request, *args, **kwargs):
         try:
@@ -70,3 +72,12 @@ class TeacherPreferThemeChangeView(generics.UpdateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"error": "Something went wrong teacher"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StatusOptionsView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        options = models.Student.Status.choices
+        options = map_status_list_to_json(options)
+        return Response(options, status=status.HTTP_200_OK)

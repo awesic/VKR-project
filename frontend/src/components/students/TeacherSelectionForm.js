@@ -1,29 +1,24 @@
 import React, {useEffect, useState} from "react";
-import axios from "axios";
-import {BACKEND_DOMAIN} from "../../features/authService";
-import {useSelector} from "react-redux";
 import {Form} from "react-bootstrap";
+import {axiosPublic} from "../../features/useAxios";
 
 const TeacherSelectionForm = ({selectedTeacher, onSelectedTeacher}) => {
     const [teacherList, setTeacherList] = useState([])
-    const {user} = useSelector((state) => state.user)
 
     useEffect(() => {
         const fetchTeachers = async () => {
-            try {
-                const config = {
-                    headers: {
-                        "Authorization": `JWT ${user.access}`
-                    }
+            if (teacherList.length === 0) {
+                try {
+                    const response = await axiosPublic.get('/api/v1/teachers/')
+                    setTeacherList(response.data)
+                } catch (error) {
+                    console.log(error)
                 }
-                const response = await axios.get(`${BACKEND_DOMAIN}/api/v1/teachers/`, config)
-                setTeacherList(response.data)
-            } catch (error) {
-                console.log(error)
             }
         }
         fetchTeachers()
     }, []);
+
     return (
         <>
             <Form.Select
@@ -37,11 +32,9 @@ const TeacherSelectionForm = ({selectedTeacher, onSelectedTeacher}) => {
                         return ""
                     }
                 }))}
-                className={"rounded-3"}
-                list={"instituteOptions"}>
-                <option value={""}>Выберите преподавателя</option>
+                className={"rounded-3"}>
                 {teacherList.map((teacher) => (
-                    <option id={teacher.id} value={teacher.id}>
+                    <option key={teacher.id} value={teacher.id}>
                         {teacher.email} / {teacher.last_name} {teacher.first_name} {teacher.patronymic}
                     </option>
                 ))}

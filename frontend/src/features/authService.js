@@ -1,120 +1,74 @@
-import axios from "axios";
-import {axiosPublic} from "./useAxios";
+import {axiosPrivate, axiosPublic} from "./useAxios";
+import Cookie from 'js-cookie'
 
-export const BACKEND_DOMAIN = process.env.API_URL
+export const BACKEND_DOMAIN = 'http://localhost:8000'
 
-const REGISTER_URL = `${BACKEND_DOMAIN}/api/v1/auth/register`
+const REGISTER_URL = '/api/v1/auth/register'
 const TOKEN_GET_URL = `${BACKEND_DOMAIN}/api/v1/token`
-const LOGIN_URL = `${BACKEND_DOMAIN}/api/v1/auth/login`
-const LOGOUT_URL = `${BACKEND_DOMAIN}/api/v1/auth/logout`
-const TOKEN_REFRESH_URL = `${BACKEND_DOMAIN}/api/v1/token/refresh`
-const USER_PROFILE_URL = `${BACKEND_DOMAIN}/api/v1/account/profile`
-const CHANGE_THEME_URL = `${BACKEND_DOMAIN}/api/v1/student/change/`
-const CHANGE_TEACHER_URL = `${BACKEND_DOMAIN}/api/v1/student/change/`
+const LOGIN_URL = '/api/v1/auth/login'
+const LOGOUT_URL = '/api/v1/auth/logout'
+const TOKEN_REFRESH_URL = '/api/v1/token/refresh/'
+const USER_PROFILE_URL = '/api/v1/account/profile'
+const CHANGE_THEME_URL = '/api/v1/student/change/'
+const CHANGE_TEACHER_URL = '/api/v1/student/change/'
 
 const register = async (userData) => {
-    const config = {
-        headers: {
-            'Accept': 'application/json',
-            'Content-type': 'application/json',
-        }
-    }
-    const response = await axios.post(REGISTER_URL, userData, config)
 
-    if (response.data) {
-        localStorage.setItem("user", JSON.stringify(response.data))
-    }
+    const response = await axiosPrivate.post(REGISTER_URL, userData)
 
     return response.data
 }
 
 const login = async (userData) => {
-    const config = {
-        headers: {
-            'Accept': 'application/json',
-            'Content-type': 'application/json',
-        }
-    }
 
-    const response = await axios.post(LOGIN_URL, userData, config)
-
-    if (response.data) {
-        localStorage.setItem("user", JSON.stringify(response.data))
-    }
+    const response = await axiosPrivate.post(LOGIN_URL, userData)
 
     return response.data
 }
 
-const logout = async (accessToken, refreshToken) => {
+const logout = async () => {
     const config = {
         headers: {
             'Accept': 'application/json',
             'Content-type': 'application/json',
-            'Authorization': `JWT ${accessToken}`
+            'X-CSRFToken': Cookie.get('csrftoken')
         }
     }
-    const body = JSON.stringify({
-        'refresh': `${refreshToken}`
-    })
-    localStorage.removeItem("user")
-    localStorage.removeItem("userInfo")
-    await axios.post(LOGOUT_URL, body, config)
+    const body = {
+        withCredentials: true
+    }
+
+    await axiosPublic.post(LOGOUT_URL, body, config)
 }
 
-// const refreshToken = async (refreshToken) => {
-//     const body = JSON.stringify({
-//         'refresh': `${refreshToken}`
-//     })
-//     const response = await axiosPublic('/token/refresh/', body)
-// }
+const getUserInfo = async () => {
 
-const getUserInfo = async (accessToken) => {
-    const config = {
-        headers: {
-            "Authorization": `JWT ${accessToken}`
-        }
-    }
-    const response = await axios.get(USER_PROFILE_URL, config)
-
-    if (response.data) {
-        localStorage.setItem("userInfo", JSON.stringify(response.data))
-    }
+    const response = await axiosPublic.get(USER_PROFILE_URL)
 
     return response.data
 }
 
-const changeStudentTheme = async (accessToken, new_theme) => {
-    const config = {
-        headers: {
-            'Accept': 'application/json',
-            'Content-type': 'application/json',
-            "Authorization": `JWT ${accessToken}`
-        }
-    }
-    const response = await axios.put(CHANGE_THEME_URL, new_theme, config)
+const changeStudentTheme = async (new_theme) => {
 
-    if (response.data) {
-        localStorage.setItem("userInfo", JSON.stringify(response.data))
-    }
+    const response = await axiosPrivate.put(CHANGE_THEME_URL, new_theme)
     return response.data
 }
 
-const changeStudentTeacher = async (accessToken, prefer_teacher) => {
-    const config = {
-        headers: {
-            'Accept': 'application/json',
-            'Content-type': 'application/json',
-            "Authorization": `JWT ${accessToken}`
-        }
-    }
-    const response = await axios.put(CHANGE_THEME_URL, prefer_teacher, config)
+const changeStudentTeacher = async (prefer_teacher) => {
 
-    if (response.data) {
-        localStorage.setItem("userInfo", JSON.stringify(response.data))
-    }
+    const response = await axiosPrivate.put(CHANGE_THEME_URL, prefer_teacher)
     return response.data
 }
 
-const authService = {register, login, logout, getUserInfo, changeStudentTheme, changeStudentTeacher}
+const changeStudentStatus = async (status) => {
+
+    const response = await axiosPrivate.put(CHANGE_THEME_URL, status)
+    return response.data
+}
+
+const authService = {
+    register, login, logout, getUserInfo,
+    changeStudentTheme, changeStudentTeacher, changeStudentStatus
+}
 
 export default authService

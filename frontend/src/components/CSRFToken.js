@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import axios from "axios";
+import {axiosPublic} from "../features/useAxios";
 
 const CSRFToken = () => {
     const [csrfToken, setCsrfToken] = useState('')
@@ -21,7 +21,7 @@ const CSRFToken = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await axios.get('/api/v1/csrf_cookie')
+                await axiosPublic.get('/api/v1/csrf_cookie')
             } catch (err) {}
         }
         fetchData();

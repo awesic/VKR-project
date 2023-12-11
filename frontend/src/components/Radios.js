@@ -14,8 +14,7 @@ const Radios = ({formData, setFormData, errors}) => {
 
     const onRadioChange = (e) => {
         setRole(e.target.value);
-        // const {name, value} = e.target
-        // setFormData((prev) => ({...prev, [name]: value}))
+
         if (role === student) {
             formData.institute = '';
             formData.direction = '';
@@ -41,11 +40,9 @@ const Radios = ({formData, setFormData, errors}) => {
     }
     const onChange = (e) => {
         e.preventDefault();
-        // setErrors(ValidateValue(FormData));
         const {name, value} = e.target;
         setFormData((prev) => ({...prev, [name]: value}));
         formData.role = role
-        // setFormData((prev) => ({...prev, ['role']: role}));
     };
 
     useEffect(() => {
@@ -65,11 +62,9 @@ const Radios = ({formData, setFormData, errors}) => {
                 console.log(error)
             }
         }
-        // if (!institutes) {
-            fetchInstitutes()
-        // }
-        // if (!directions)
-            fetchDirections()
+        fetchInstitutes()
+
+        fetchDirections()
     }, []);
 
     return (
@@ -150,7 +145,6 @@ const Radios = ({formData, setFormData, errors}) => {
                         required
                         name={"graduate_year"}
                         type={"number"}
-                        // placeholder={"Год выпуска*"}
                         defaultValue={currentYear}
                         value={formData.graduate_year}
                         onChange={e => onChange(e)}
@@ -161,34 +155,6 @@ const Radios = ({formData, setFormData, errors}) => {
                     </Form.Control.Feedback>
                 </Form.Group>
             )}
-            {/*{formData.role === teacher && (*/}
-            {/*    <Fragment>*/}
-            {/*        <Form.Group className={"mb-3"}>*/}
-            {/*            <Form.Control*/}
-            {/*                required*/}
-            {/*                name={"institute"}*/}
-            {/*                type={"text"} placeholder={"Институт*"}*/}
-            {/*                value={formData.institute}*/}
-            {/*                onChange={e => onChange(e)}*/}
-            {/*                className={"rounded-3"}/>*/}
-            {/*            <Form.Control.Feedback type={"invalid"} className={"text-start"}>*/}
-            {/*                Это поле обязательно.*/}
-            {/*            </Form.Control.Feedback>*/}
-            {/*        </Form.Group>*/}
-            {/*        <Form.Group className={"mb-3"}>*/}
-            {/*            <Form.Control*/}
-            {/*                required*/}
-            {/*                name={"direction"}*/}
-            {/*                type={"text"} placeholder={"Направление*"}*/}
-            {/*                value={formData.direction}*/}
-            {/*                onChange={e => onChange(e)}*/}
-            {/*                className={"rounded-3"}/>*/}
-            {/*            <Form.Control.Feedback type={"invalid"} className={"text-start"}>*/}
-            {/*                Это поле обязательно.*/}
-            {/*            </Form.Control.Feedback>*/}
-            {/*        </Form.Group>*/}
-            {/*    </Fragment>*/}
-            {/*)}*/}
         </Fragment>
     );
 };

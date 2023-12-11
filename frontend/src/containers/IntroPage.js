@@ -1,8 +1,7 @@
 import React from "react";
 import intro from "../img/intro.jpg"
 import styled from "styled-components";
-import {Button, ButtonGroup, Col, Container, Dropdown, DropdownButton, Row} from "react-bootstrap";
-import {Link, Route} from "react-router-dom";
+import {Button, Container} from "react-bootstrap";
 
 const Styles = styled.div`
     .intro-page {

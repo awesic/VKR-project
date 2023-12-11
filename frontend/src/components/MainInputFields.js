@@ -2,7 +2,7 @@ import React, {Fragment} from "react";
 import {Form} from "react-bootstrap";
 
 const MainInputFields = ({formData, setFormData, errors}) => {
-    // const {email, password, password2, first_name, last_name, patronymic} = formData;
+
     const onChange = (e) => {
         e.preventDefault();
         const {name, value} = e.target;

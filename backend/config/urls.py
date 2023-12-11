@@ -6,7 +6,6 @@ from .yasg import urlpatterns as yasg_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api-auth/", include('rest_framework.urls')),
     path("api/v1/", include('users.urls')),
     path("api/v1/", include('directions.urls')),
     path("api/v1/", include('main.urls')),

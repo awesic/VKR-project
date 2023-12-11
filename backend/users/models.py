@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from users.managers import UserManager
 from directions.models import Direction, Institute
+# from main.models import Status
 
 
 def year_validation(value):
@@ -38,7 +39,7 @@ class User(AbstractUser):
         return self.email
 
     def get_full_name(self):
-        return f'{self.patronymic} {self.first_name} {self.last_name}'
+        return f'{self.last_name} {self.first_name} {self.patronymic}'
 
     @classmethod
     def _check_model(cls):
@@ -75,6 +76,18 @@ class Student(User):
     """
     Custom student model that create students additional fields
     """
+
+    class Status(models.TextChoices):
+        TOPIC_CHOICE = 'topic_choice', _('Выбор темы')
+        THEORETICAL_ASPECTS = 'theoretical_aspects', _('Изучение теоретических аспектов темы работы')
+        DATA_COLLECTION_AND_ANALYSIS = 'data_collection_and_analysis', _('Сбор и анализ данных')
+        MAIN_WORK = 'main_wokr', _('Написание основной части / Разработка')
+        DECORATION_FQW = 'decorator_fqw', _('Оформление ВКР')
+        FINISHED = 'finished', _('Завершено')
+
+        def status_name(self):
+            return str(self)
+
     # institute = models.CharField(_("institute"), max_length=150, blank=True)
     # direction = models.CharField(_("direction"), max_length=150, blank=True)
     institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
@@ -87,6 +100,8 @@ class Student(User):
     teacher_approved = models.BooleanField(_("teacher approved"), default=False)
     theme = models.CharField(_("theme"), max_length=150, blank=True)
     theme_approved = models.BooleanField(_("theme approved"), default=False)
+    status = models.CharField(_("status"),
+                              max_length=50, choices=Status.choices, default=Status.TOPIC_CHOICE, blank=True)
 
     class Meta:
         verbose_name = 'Student'

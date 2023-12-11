@@ -23,7 +23,7 @@ class CheckAuthentication(views.APIView):
             return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# @method_decorator(ensure_csrf_cookie, name="dispatch")
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class GetCSRFToken(views.APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -31,7 +31,7 @@ class GetCSRFToken(views.APIView):
         return Response({"success": "CSRF cookie set"}, status=status.HTTP_200_OK)
 
 
-# @method_decorator(csrf_protect, name="dispatch")
+@method_decorator(csrf_protect, name="dispatch")
 # # class AdminRegisterView(generics.CreateAPIView):
 # #     serializer_class = serializers.py.UserSerializer
 # #     queryset = User.objects.filter(role=User.Roles.ADMIN)
@@ -62,7 +62,7 @@ class UserRegisterView(views.APIView):
             token = services.register(request)
             if not token:
                 return Response({"error": "Wrong credentials"}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(token, status=status.HTTP_201_CREATED)
+            return Response({"success": "User registered successfully"}, status=status.HTTP_201_CREATED)
         except:
             return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -73,18 +73,29 @@ class UsersListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class LoginView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = serializers.LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        if user:
-            token = services.get_tokens_for_user(user)
-            return Response(token, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = serializers.LoginSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            if user:
+                login(request, user)
+                if str(user.role).lower() == 'student':
+                    user = serializers.StudentSerializer(user, many=False)
+                elif str(user.role).lower() == 'teacher':
+                    user = serializers.TeacherSerializer(user, many=False)
+                else:
+                    user = serializers.AdminSerializer(user, many=False)
+                # token = services.get_tokens_for_user(user)
+                return Response(user.data, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(views.APIView):
@@ -92,16 +103,17 @@ class LogoutView(views.APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data['refresh']
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            # refresh_token = request.data['refresh']
+            # token = RefreshToken(refresh_token)
+            # token.blacklist()
+            logout(request)
             return Response({'success': _('You have been logged out.')}, status=status.HTTP_205_RESET_CONTENT)
         except:
             return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     allow_methods = ['GET']
 
     def get(self, request):
@@ -110,13 +122,13 @@ class ProfileView(views.APIView):
             user_profile = User.objects.get(email=user.email)
             if user.role == User.Roles.TEACHER:
                 user_profile = Teacher.objects.get(email=user.email)
-                user_profile = serializers.TeacherSerializer(user_profile, many=False).data
+                user_profile = serializers.TeacherSerializer(user_profile, many=False)
             elif user.role == User.Roles.STUDENT:
                 user_profile = Student.objects.get(email=user.email)
-                user_profile = serializers.StudentSerializer(user_profile, many=False).data
+                user_profile = serializers.StudentSerializer(user_profile, many=False)
             else:
-                user_profile = serializers.AdminSerializer(user_profile, many=False).data
-            return Response(user_profile)
+                user_profile = serializers.AdminSerializer(user_profile, many=False)
+            return Response(user_profile.data)
         except:
             return Response({'error': 'Something went wrong'}, status=status.HTTP_404_NOT_FOUND)
 
