@@ -85,14 +85,10 @@ class Student(User):
         DECORATION_FQW = 'decorator_fqw', _('Оформление ВКР')
         FINISHED = 'finished', _('Завершено')
 
-        def status_name(self):
-            return str(self)
-
-    # institute = models.CharField(_("institute"), max_length=150, blank=True)
-    # direction = models.CharField(_("direction"), max_length=150, blank=True)
     institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
     direction = models.ForeignKey(Direction, related_name='+', on_delete=models.DO_NOTHING, max_length=150,
                                   blank=True)
+    group = models.CharField(_("group"), max_length=10, blank=True)
     graduate_year = models.PositiveSmallIntegerField(_("graduate year"),
                                                      validators=[year_validation], blank=True, null=True)
     prefer_teacher = models.ForeignKey(Teacher, related_name='+', on_delete=models.DO_NOTHING,

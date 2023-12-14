@@ -7,6 +7,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /*background: url("./img/guu.jpg") no-repeat center center;*/
+  display: flex!important;
+  /*height: 100vh!important;*/
+  flex-direction: column!important;
 }
 
 code {

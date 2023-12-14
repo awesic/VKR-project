@@ -88,7 +88,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['email', 'first_name', 'last_name', 'patronymic',
-                  'password', 'password2', 'institute', 'direction', 'graduate_year']
+                  'password', 'password2', 'institute', 'direction', 'group', 'graduate_year']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -104,6 +104,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
             , patronymic=validated_data['patronymic']
             , institute=validated_data['institute']
             , direction=validated_data['direction']
+            , group=validated_data['group']
             , graduate_year=validated_data['graduate_year']
             , role='STUDENT'
         )
@@ -143,15 +144,15 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    fio = serializers.CharField(source='get_full_name', read_only=True)
     teacher_email = serializers.EmailField(source='prefer_teacher.email', read_only=True, allow_blank=True)
     teacher_full_name = serializers.CharField(source='prefer_teacher.get_full_name', read_only=True, allow_blank=True)
     status_name = serializers.CharField(source='get_status_display', read_only=True, allow_blank=True)
-    # status_name = serializers.ChoiceField(choices=Student.Status, source='status.status.name', read_only=True, allow_blank=True)
-    # print(Student.Status.FINISHED.status_name)
+
     class Meta:
         model = Student
-        fields = ['id', 'email', 'first_name', 'last_name', 'patronymic',
-                  'institute', 'direction', 'graduate_year',
+        fields = ['id', 'email', 'first_name', 'last_name', 'patronymic', 'fio',
+                  'institute', 'direction', 'group', 'graduate_year',
                   'theme', 'theme_approved', 'prefer_teacher', 'teacher_email', 'teacher_full_name', 'teacher_approved',
                   'status', 'status_name', 'role']
 

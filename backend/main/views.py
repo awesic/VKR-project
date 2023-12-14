@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+import datetime
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework import generics, views, status, exceptions
 from rest_framework.response import Response
@@ -81,3 +81,24 @@ class StatusOptionsView(views.APIView):
         options = models.Student.Status.choices
         options = map_status_list_to_json(options)
         return Response(options, status=status.HTTP_200_OK)
+
+
+class StudentsByTeacherView(generics.ListAPIView):
+    permission_classes = [IsTeacher]
+    queryset = models.Student.objects.all()
+    serializer_class = serializers.StudentSerializer
+
+    def get_queryset(self):
+        try:
+            instance = self.queryset.filter(prefer_teacher=self.request.user.pk).order_by('-graduate_year')
+            teacher_approved = self.request.query_params.get('teacher_approved')
+            graduate_year = self.request.query_params.get('graduate_year', None)
+            if graduate_year:
+                instance = self.queryset.filter(prefer_teacher=self.request.user.pk, graduate_year=graduate_year)
+            if teacher_approved:
+                instance = self.queryset.filter(prefer_teacher=self.request.user.pk, teacher_approved=teacher_approved)
+            return instance
+        except models.Student.DoesNotExist:
+            raise exceptions.NotFound("Student")
+
+
