@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from directions.models import Direction, Institute
+from directions.models import Direction, Institute, Department
 
 
 class DirectionSerializer(serializers.ModelSerializer):
@@ -13,4 +13,10 @@ class DirectionSerializer(serializers.ModelSerializer):
 class InstituteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institute
+        fields = '__all__'
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
         fields = '__all__'

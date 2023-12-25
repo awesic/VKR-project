@@ -9,6 +9,9 @@ from main.services import map_status_list_to_json
 
 
 class ThemePreferTeacherChangeView(generics.UpdateAPIView):
+    """
+    Change the theme and the prefer teacher by student
+    """
     permission_classes = [IsStudent]
     serializer_class = serializers.StudentSerializer
     queryset = models.Student.objects.all()
@@ -24,7 +27,12 @@ class ThemePreferTeacherChangeView(generics.UpdateAPIView):
     def put(self, request, *args, **kwargs):
         try:
             if 'theme_approved' not in request.data and 'teacher_approved' not in request.data:
-                serializer = self.serializer_class(self.get_object(), data=request.data, partial=True)
+                data = request.data
+
+                if 'theme' in data:
+                    data['theme_approved'] = False
+
+                serializer = self.serializer_class(self.get_object(), data=data, partial=True)
 
                 if serializer.is_valid():
                     serializer.save()
@@ -36,7 +44,7 @@ class ThemePreferTeacherChangeView(generics.UpdateAPIView):
             return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdminActionsView(generics.UpdateAPIView):
+class AdminActionsView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = serializers.StudentSerializer
 
@@ -56,9 +64,22 @@ class AdminActionsView(generics.UpdateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            obj = models.User.objects.get(email=kwargs['email'])
+            if obj:
+                obj.delete()
+                return Response("User deleted successfully", status=status.HTTP_204_NO_CONTENT)
+            return Response({"error": "User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TeacherPreferThemeChangeView(generics.UpdateAPIView):
+    """
+    Change the theme and the prefer teacher approvements of student by teacher
+    """
     permission_classes = [IsTeacher]
 
     def put(self, request, *args, **kwargs):
@@ -75,6 +96,9 @@ class TeacherPreferThemeChangeView(generics.UpdateAPIView):
 
 
 class StatusOptionsView(views.APIView):
+    """
+    Returns a list of options for the student status.
+    """
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
@@ -90,13 +114,13 @@ class StudentsByTeacherView(generics.ListAPIView):
 
     def get_queryset(self):
         try:
-            instance = self.queryset.filter(prefer_teacher=self.request.user.pk).order_by('-graduate_year')
-            teacher_approved = self.request.query_params.get('teacher_approved')
-            graduate_year = self.request.query_params.get('graduate_year', None)
-            if graduate_year:
-                instance = self.queryset.filter(prefer_teacher=self.request.user.pk, graduate_year=graduate_year)
-            if teacher_approved:
-                instance = self.queryset.filter(prefer_teacher=self.request.user.pk, teacher_approved=teacher_approved)
+            instance = self.queryset.filter(prefer_teacher=self.request.user.pk, **self.request.query_params.dict()).order_by('-graduate_year')
+            # teacher_approved = self.request.query_params.get('teacher_approved')
+            # graduate_year = self.request.query_params.get('graduate_year', None)
+            # if graduate_year:
+            #     instance = self.queryset.filter(prefer_teacher=self.request.user.pk, graduate_year=graduate_year)
+            # if teacher_approved:
+            #     instance = self.queryset.filter(prefer_teacher=self.request.user.pk, teacher_approved=teacher_approved)
             return instance
         except models.Student.DoesNotExist:
             raise exceptions.NotFound("Student")

@@ -19,6 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name', 'patronymic', 'password', 'password2', 'role']
         read_only_fields = ['role']
 
+    def validate(self, attrs):
+        if attrs['password']!= attrs['password2']:
+            raise serializers.ValidationError(_("Пароли не совпадают."))
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError(_("Пользователь с таким email уже существует."))
+        return attrs
+
     def create(self, validated_data):
         admin = User.objects.create_superuser(
             email=validated_data['email'],
@@ -53,11 +60,13 @@ class TeacherRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
         fields = ['email', 'first_name', 'last_name', 'patronymic',
-                  'password', 'password2', 'institute', 'direction']
+                  'password', 'password2', 'institute', 'department']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"error": _("Пароли не совпадают.")})
+        if Teacher.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError(_("Такой пользователь уже существует."), code="authorization")
         return attrs
 
     def create(self, validated_data):
@@ -68,8 +77,8 @@ class TeacherRegisterSerializer(serializers.ModelSerializer):
             , last_name=validated_data['last_name']
             , patronymic=validated_data['patronymic']
             , institute=validated_data['institute']
-            , direction=validated_data['direction']
-            , role='TEACHER'
+            , department=validated_data['department']
+            , role='teacher'
         )
         teacher.set_password(validated_data['password'])
         teacher.save()
@@ -92,7 +101,9 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"error": _("Пароли не совпадают.")})
+            raise serializers.ValidationError(_("Пароли не совпадают."), code="authorization")
+        if Student.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError(_("Такой пользователь уже существует."), code="authorization")
         return attrs
 
     def create(self, validated_data):
@@ -106,7 +117,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
             , direction=validated_data['direction']
             , group=validated_data['group']
             , graduate_year=validated_data['graduate_year']
-            , role='STUDENT'
+            , role='student'
         )
         student.set_password(validated_data['password'])
         student.save()
@@ -134,10 +145,10 @@ class LoginSerializer(serializers.ModelSerializer):
         if email and password:
             user = authenticate(email=email, password=password)
             if not user:
-                msg = {"error": _('Не правильная почта или пароль.')}
+                msg = _('Не правильная почта или пароль.')
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = {"error": _('Почта и пароль обязательны.')}
+            msg = _('Почта и пароль обязательны.')
             raise serializers.ValidationError(msg, code="authorization")
         attrs['user'] = user
         return attrs
@@ -146,15 +157,15 @@ class LoginSerializer(serializers.ModelSerializer):
 class StudentSerializer(serializers.ModelSerializer):
     fio = serializers.CharField(source='get_full_name', read_only=True)
     teacher_email = serializers.EmailField(source='prefer_teacher.email', read_only=True, allow_blank=True)
-    teacher_full_name = serializers.CharField(source='prefer_teacher.get_full_name', read_only=True, allow_blank=True)
-    status_name = serializers.CharField(source='get_status_display', read_only=True, allow_blank=True)
+    teacher_fullname = serializers.CharField(source='prefer_teacher.get_full_name', read_only=True, allow_blank=True)
+    status_label = serializers.CharField(source='get_status_display', read_only=True, allow_blank=True)
 
     class Meta:
         model = Student
         fields = ['id', 'email', 'first_name', 'last_name', 'patronymic', 'fio',
                   'institute', 'direction', 'group', 'graduate_year',
-                  'theme', 'theme_approved', 'prefer_teacher', 'teacher_email', 'teacher_full_name', 'teacher_approved',
-                  'status', 'status_name', 'role']
+                  'theme', 'theme_approved', 'prefer_teacher', 'teacher_email', 'teacher_fullname', 'teacher_approved',
+                  'status', 'status_label', 'role']
 
 
 class StudentUpdateSerializer(serializers.ModelSerializer):
@@ -166,7 +177,9 @@ class StudentUpdateSerializer(serializers.ModelSerializer):
 
 
 class TeacherSerializer(serializers.ModelSerializer):
+    fio = serializers.CharField(source='get_full_name', read_only=True)
+    department_label = serializers.CharField(source='department.get_label', read_only=True, allow_blank=True)
 
     class Meta:
         model = Teacher
-        fields = ['id', 'email', 'first_name', 'last_name', 'patronymic', 'institute', 'direction', 'role']
+        fields = ['id', 'email', 'first_name', 'last_name', 'patronymic', 'fio', 'institute', 'department', 'department_label', 'role']

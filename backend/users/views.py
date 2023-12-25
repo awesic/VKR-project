@@ -1,11 +1,11 @@
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions, status, generics, views, authentication, filters
+from rest_framework import permissions, status, generics, views, filters
+from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import viewsets
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import User, Student, Teacher
 from users import serializers, services
@@ -32,39 +32,17 @@ class GetCSRFToken(views.APIView):
 
 
 @method_decorator(csrf_protect, name="dispatch")
-# # class AdminRegisterView(generics.CreateAPIView):
-# #     serializer_class = serializers.py.UserSerializer
-# #     queryset = User.objects.filter(role=User.Roles.ADMIN)
-# #     permission_classes = [permissions.AllowAny]
-# class AdminRegisterView(views.APIView):
-#     """
-#     Register a new Admin user and automatically login
-#     """
-#     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
-#
-#     def post(self, request):
-#         serializer = serializers.py.UserSerializer(data=self.request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         auth_user = serializers.py.LoginSerializer(data=self.request.data)
-#         auth_user.is_valid(raise_exception=True)
-#         user = auth_user.validated_data['user']
-#         if user:
-#             login(request, user)
-#             return Response({'success': _('User created successfully')},
-#                             status=status.HTTP_201_CREATED)
-#         return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class UserRegisterView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         try:
-            token = services.register(request)
-            if not token:
-                return Response({"error": "Wrong credentials"}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({"success": "User registered successfully"}, status=status.HTTP_201_CREATED)
-        except:
-            return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+            user = services.register(request)
+            if not user:
+                return Response("Пользователь с такой почтой уже существует", status=status.HTTP_400_BAD_REQUEST)
+            return Response(user.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"data": e.args}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UsersListView(generics.ListAPIView):
@@ -139,6 +117,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     """
     queryset = Student.objects.all()
     serializer_class = serializers.StudentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class TeacherViewSet(viewsets.ReadOnlyModelViewSet):

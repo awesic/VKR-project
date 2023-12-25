@@ -6,8 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from users.managers import UserManager
-from directions.models import Direction, Institute
-# from main.models import Status
+from directions.models import Direction, Institute, Department
 
 
 def year_validation(value):
@@ -21,9 +20,9 @@ class User(AbstractUser):
     """
 
     class Roles(models.TextChoices):
-        ADMIN = 'ADMIN', 'Админ',
-        TEACHER = 'TEACHER', 'Преподаватель',
-        STUDENT = 'STUDENT', 'Студент'
+        ADMIN = 'admin', 'Админ',
+        TEACHER = 'teacher', 'Преподаватель',
+        STUDENT = 'student', 'Студент'
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
@@ -46,22 +45,14 @@ class User(AbstractUser):
         errors = []
         return errors
 
-    def student(self):
-        student = Student.objects.get(user=self)
-
-    def teacher(self):
-        teacher = Teacher.objects.get(user=self)
-
 
 class Teacher(User):
     """
     Custom teacher model that create teachers additional fields
     """
-    # institute = models.CharField(_("institute"), max_length=150, blank=True)
-    # direction = models.CharField(_("direction"), max_length=150, blank=True)
-    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
-    direction = models.ForeignKey(
-        Direction, related_name='+', on_delete=models.DO_NOTHING, max_length=150, blank=True)
+    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.SET_NULL, blank=True, null=True)
+    department = models.ForeignKey(
+        Department, related_name='+', on_delete=models.SET_NULL, max_length=150, blank=True, null=True)
 
     # students = ArrayField(models.CharField(max_length=150), blank=True, default=list)
 
@@ -79,19 +70,19 @@ class Student(User):
 
     class Status(models.TextChoices):
         TOPIC_CHOICE = 'topic_choice', _('Выбор темы')
-        THEORETICAL_ASPECTS = 'theoretical_aspects', _('Изучение теоретических аспектов темы работы')
+        THEORETICAL_ASPECTS = 'theoretical_aspects', _('Изучение теоретических аспектов темы')
         DATA_COLLECTION_AND_ANALYSIS = 'data_collection_and_analysis', _('Сбор и анализ данных')
         MAIN_WORK = 'main_wokr', _('Написание основной части / Разработка')
         DECORATION_FQW = 'decorator_fqw', _('Оформление ВКР')
         FINISHED = 'finished', _('Завершено')
 
-    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.DO_NOTHING, blank=True)
-    direction = models.ForeignKey(Direction, related_name='+', on_delete=models.DO_NOTHING, max_length=150,
-                                  blank=True)
+    institute = models.ForeignKey(Institute, related_name='+', on_delete=models.SET_NULL, blank=True, null=True)
+    direction = models.ForeignKey(Direction, related_name='+', on_delete=models.SET_NULL, max_length=150,
+                                  blank=True, null=True)
     group = models.CharField(_("group"), max_length=10, blank=True)
     graduate_year = models.PositiveSmallIntegerField(_("graduate year"),
                                                      validators=[year_validation], blank=True, null=True)
-    prefer_teacher = models.ForeignKey(Teacher, related_name='+', on_delete=models.DO_NOTHING,
+    prefer_teacher = models.ForeignKey(Teacher, related_name='+', on_delete=models.SET_NULL,
                                        blank=True, null=True)
     teacher_approved = models.BooleanField(_("teacher approved"), default=False)
     theme = models.CharField(_("theme"), max_length=150, blank=True)
