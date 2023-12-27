@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Layout from "@/hocs/Layout.js";
+import Layout from "@/hocs/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminSignupForm from "@/components/AdminSignUpForm";
 import StudentSignupForm from "@/components/StudentSignUpForm";

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, InputGroup } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Layout from "@/hocs/Layout.js";
+import Layout from "@/hocs/Layout";
 import CSRFToken from "@/components/CSRFToken";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";

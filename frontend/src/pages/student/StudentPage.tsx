@@ -36,7 +36,8 @@ export const FQWTheme: FC<Props> = ({ user }) => {
         useChangeStudentsThemeTeacherStatus();
 
     const handleSubmit = useCallback(() => {
-        if (newTheme) changeStudentTheme({ theme: newTheme });
+        if (newTheme && newTheme !== user.theme)
+            changeStudentTheme({ theme: newTheme });
     }, [newTheme]);
 
     return (
@@ -131,7 +132,8 @@ export const PreferTeacher: FC<Props> = ({ user }) => {
         useChangeStudentsThemeTeacherStatus();
 
     const handleSubmit = useCallback(() => {
-        if (teacher) changeStudentTheme({ prefer_teacher: teacher });
+        if (teacher && teacher !== user.prefer_teacher)
+            changeStudentTheme({ prefer_teacher: teacher });
     }, [teacher]);
 
     return (
@@ -227,7 +229,8 @@ export const FQWStatus: FC<Props> = ({ user }) => {
         useChangeStudentsThemeTeacherStatus();
 
     const handleSubmit = (status: string) => {
-        changeStudentStatus({ status: status });
+        if (status && status !== user.status)
+            changeStudentStatus({ status: status });
     };
 
     return (

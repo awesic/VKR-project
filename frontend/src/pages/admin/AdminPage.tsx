@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronsRight } from "lucide-react";
 import { Link } from "react-router-dom";
 

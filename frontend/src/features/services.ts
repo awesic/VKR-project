@@ -62,7 +62,7 @@ const fetchAllTeachers = async (): Promise<Teacher[]> => {
     return await axiosPublic.get(TEACHERS_URL).then((res) => res.data);
 };
 
-const fetchAllStudents = async (): Promise<Teacher[]> => {
+const fetchAllStudents = async (): Promise<Student[]> => {
     return await axiosPublic.get(STUDENTS_URL).then((res) => res.data);
 };
 

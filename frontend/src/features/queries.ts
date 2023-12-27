@@ -13,14 +13,16 @@ export const useRegisterQuery = () => {
         mutationFn: api.register,
         onSuccess: async (data) => {
             await queryClient.setQueryData([QUERY_KEY.user], data);
-            queryClient.invalidateQueries({
-                queryKey: [QUERY_KEY.user, `${data.role}s`],
-                refetchType: "none",
-            });
             navigate("/home");
         },
         onError(error) {
             error.message = "Аккаунт с этой почтой уже существует";
+        },
+        onSettled: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: [QUERY_KEY.user],
+                // refetchType: "none",
+            });
         },
     });
 };
@@ -32,7 +34,7 @@ export const useLoginQuery = () => {
         mutationFn: api.login,
         onSuccess: async (data) => {
             await queryClient.setQueryData([QUERY_KEY.user], data);
-            queryClient.invalidateQueries({
+            await queryClient.invalidateQueries({
                 queryKey: [QUERY_KEY.user],
                 refetchType: "none",
             });
@@ -74,10 +76,10 @@ export const useChangeStudentsThemeTeacherStatus = () => {
                 "Ошибка! Попробуйте обновить страницу и попробовать снова."
             );
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({
+        onSettled: async () => {
+            await queryClient.invalidateQueries({
                 queryKey: [QUERY_KEY.user],
-                refetchType: "none",
+                // refetchType: "none",
             });
         },
     });
@@ -116,7 +118,7 @@ export const useFetchStudentsQuery = () => {
         queryFn: () => api.fetchStudents(),
         refetchOnWindowFocus: true,
         // notifyOnChangeProps: "all",
-        gcTime: 1000 * 60 * 30,
+        gcTime: 1000 * 60 * 60,
     });
 };
 
@@ -130,11 +132,15 @@ export const useApproveStudentQuery = () => {
                 "Ошибка! Попробуйте обновить страницу и попробовать снова."
             );
         },
-        onSuccess: () =>
-            queryClient.invalidateQueries({
+        // onSuccess: async (data) => {
+        //     await queryClient.setQueryData([QUERY_KEY.students], data);
+        // },
+        onSettled: async () => {
+            await queryClient.invalidateQueries({
                 queryKey: [QUERY_KEY.students],
-                refetchType: "none",
-            }),
+                // refetchType: "none",
+            });
+        },
     });
 };
 
@@ -148,6 +154,9 @@ export const useAdminsActionsQuery = () => {
                 "Ошибка! Попробуйте обновить страницу и попробовать снова."
             );
         },
+        // onSuccess: async (data) => {
+        //     await queryClient.setQueryData([QUERY_KEY.students], data);
+        // },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY.students] });
         },
@@ -164,6 +173,7 @@ export const useDeleteUserQuery = (
         onError: () => {
             toast.error("Ошибка! Не удалось удалить пользователя!");
         },
+
         onSettled: () => {
             queryClient.invalidateQueries({
                 queryKey: [`${who}s`],

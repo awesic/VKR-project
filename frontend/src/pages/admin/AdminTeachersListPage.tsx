@@ -12,8 +12,8 @@ const AdminTeachersListPage = () => {
     return (
         <>
             <Layout
-                title={"Список студентов"}
-                content={"Страница списка студентов"}>
+                title={"Список преподавателей"}
+                content={"Страница списка преподавателей"}>
                 <Navbars />
                 <div className={"container py-5"}>
                     <h4

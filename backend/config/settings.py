@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -45,7 +44,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     'http://10.4.134.142:5173',
     'http://192.168.64.1:5173',
-    'http://localhost:5173', 
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost',
+    'http://127.0.0.1', 
     'https://gxf7s1rd-5173.euw.devtunnels.ms',
 ]
 CORS_ALLOW_HEADERS = ["Content-Type", "X-CSRFToken"]
@@ -57,6 +59,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://192.168.64.1:5173',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost',
+    'http://127.0.0.1',
     'https://gxf7s1rd-5173.euw.devtunnels.ms'
 ]
 
@@ -107,22 +111,22 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": os.getenv("ENGINE"),
-#         "NAME": os.getenv("POSTGRES_DB"),
-#         "USER": os.getenv("POSTGRES_USER"),
-#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-#         "HOST": os.getenv("POSTGRES_HOST"),
-#         "PORT": os.getenv("POSTGRES_PORT"),
-#     }
-# }
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": os.environ.get("ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.getenv("POSTGRES_DB", "db.sqlite3"),
+        "USER": os.getenv("POSTGRES_USER", "user"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "password"),
+        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 

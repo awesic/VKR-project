@@ -1,20 +1,11 @@
 import { z } from "zod";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormLabel } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import CSRFToken from "@/components/CSRFToken";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { InputGroup } from "react-bootstrap";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetUserInfo, useRegisterQuery } from "@/features/queries";
 import { MainFormFields } from "./MainFormFields";
@@ -50,8 +41,6 @@ const adminFormSchema = baseFormSchema.refine(
 type AdminFormSchema = z.infer<typeof baseFormSchema>;
 
 const AdminSignupForm = () => {
-    const [showPassword, setShowPassword] = useState(false);
-
     const form = useForm<AdminFormSchema>({
         resolver: zodResolver(adminFormSchema),
     });
@@ -78,90 +67,6 @@ const AdminSignupForm = () => {
                 <FormLabel className={"text-start text-danger"}>
                     {error ? error.message : ""}
                 </FormLabel>
-                {/* <FormField
-                    control={form.control}
-                    name="last_name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Фамилия *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="first_name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Имя *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="patronymic"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Отчество" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Почта *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                        <FormItem>
-                            <InputGroup className="flex-nowrap">
-                                <FormControl>
-                                    <Input
-                                        placeholder="Пароль *"
-                                        type={
-                                            showPassword ? "text" : "password"
-                                        }
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <InputGroup.Text
-                                    onClick={() =>
-                                        setShowPassword((prev) => !prev)
-                                    }>
-                                    {showPassword ? <EyeOff /> : <Eye />}
-                                </InputGroup.Text>
-                            </InputGroup>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="password2"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input
-                                    type="password"
-                                    placeholder="Подтверждение пароля *"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField> */}
                 <MainFormFields form={form} />
 
                 <Button

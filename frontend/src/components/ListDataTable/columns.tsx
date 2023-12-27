@@ -24,27 +24,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { DeleteUserAlert } from "../DeleteUserAlert";
+import { Student, Teacher } from "@/data/types/UsersTypes";
 
-type TStudents = {
-    id: number;
-    email: string;
-    fio: string;
-    group: string;
-    graduate_year: number;
-    teacher_approved: boolean;
-    teacher_fullname: string;
-    theme: string;
-    theme_approved: boolean;
-    status_label: string;
-    // action?: any;
-};
+type TStudents = Student;
+// {
+//     id: number;
+//     email: string;
+//     fio: string;
+//     group: string;
+//     graduate_year: number;
+//     teacher_approved: boolean;
+//     teacher_fullname: string;
+//     theme: string;
+//     theme_approved: boolean;
+//     status_label: string;
+//     // action?: any;
+// };
 
-type TTeachers = {
-    id: number;
-    email: string;
-    fio: string;
-    department_label: string;
-};
+type TTeachers = Teacher;
+// {
+//     id: number;
+//     email: string;
+//     fio: string;
+//     department_label: string;
+// };
 
 export const StudentsListColumns: ColumnDef<TStudents>[] = [
     {
@@ -164,7 +167,7 @@ export const StudentsListColumns: ColumnDef<TStudents>[] = [
                                 onClick={() =>
                                     approveStudent({
                                         studEmail: student.email,
-                                        params: { theme_approved: true },
+                                        params: { theme_approved: false },
                                     })
                                 }>
                                 Отменить утверждение темы

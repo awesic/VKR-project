@@ -4,14 +4,14 @@ import {
     FormItem,
     FormMessage,
 } from "@/components/ui/form";
-import { FieldValues, UseFormReturn } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { Input } from "./ui/input";
 import { InputGroup } from "react-bootstrap";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
-    form: UseFormReturn<FieldValues, any, undefined>;
+    form: UseFormReturn<any, any, undefined>;
 }
 
 export const MainFormFields = ({ form }: Props) => {

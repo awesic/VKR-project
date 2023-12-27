@@ -1,0 +1,8 @@
+node_modules
+old_version
+npm-debug.log
+Dockerfile
+yarn-error.log
+package-lock.json
+.env.dev
+dist

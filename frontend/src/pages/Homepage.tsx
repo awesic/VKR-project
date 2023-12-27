@@ -1,18 +1,18 @@
 import { Fragment } from "react";
 import Navbars from "@/components/Navbars";
-import Layout from "@/hocs/Layout.js";
+import Layout from "@/hocs/Layout";
 import {
     FQWStatus,
     FQWTheme,
     PreferTeacher,
-} from "@/pages/student/StudentPage.js";
+} from "@/pages/student/StudentPage";
 import { StudentsCard, StudentsListCard } from "@/pages/teacher/TeacherPage";
 import { useGetUserInfo } from "@/features/queries";
 import { Toaster } from "sonner";
 import {
     AdminStudentsListCard,
     AdminTeachersListCard,
-} from "./admin/AdminPage";
+} from "@/pages/admin/AdminPage";
 
 function Homepage() {
     const { data: user } = useGetUserInfo();

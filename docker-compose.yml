@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+    # nginx:
+    #     restart: unless-stopped
+    #     container_name: fqw_nginx
+    #     build:
+    #         context: .
+    #         dockerfile: ./Dockerfile.nginx
+    #     ports:
+    #         - 80:80
+    #     volumes:
+    #         - ./backend/django_static:/app/backend/server/django_static
+    #         - ./nginx/development:/etc/nginx/conf.d
+    db:
+        image: postgres:15
+        container_name: db
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        restart: always
+        ports:
+            - "5432:5432"
+        env_file:
+            - "./backend/.env.dev"
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: backend
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - ./backend:/app/backend
+        ports:
+            - "8000:8000"
+        env_file:
+            - "./backend/.env.dev"
+        depends_on:
+            - db
+
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: frontend
+        command: npm run dev
+        ports:
+            - "80:80"
+        volumes:
+            - ./frontend:/app/frontend
+            - /app/frontend/node_modules
+        depends_on:
+            - backend
+        env_file:
+            - ./frontend/.env.dev
+
+    # pgadmin:
+    #     image: dpage/pgadmin4
+    #     ports:
+    #         - "5050:80"
+    #     env_file:
+    #         - .env
+
+volumes:
+    postgres_data:

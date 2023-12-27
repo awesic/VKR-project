@@ -1,5 +1,5 @@
-import Layout from "@/hocs/Layout.js";
-import Navbars from "@/components/Navbars.js";
+import Layout from "@/hocs/Layout";
+import Navbars from "@/components/Navbars";
 import { DataTable } from "@/components/ListDataTable/data-table";
 import { StudentsListColumns } from "@/components/ListDataTable/columns";
 import { useFetchStudentsQuery } from "@/features/queries";
@@ -34,6 +34,7 @@ const ChooseStudentsPage = () => {
                             data={studentsList}
                             teacher_approved={false}
                             admin={false}
+                            adminStudents={false}
                         />
                     )}
                     <Toaster

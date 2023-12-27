@@ -35,6 +35,7 @@ const StudentsListPage = () => {
                             data={studentsList}
                             teacher_approved={true}
                             admin={false}
+                            adminStudents={false}
                         />
                     )}
                     <Toaster

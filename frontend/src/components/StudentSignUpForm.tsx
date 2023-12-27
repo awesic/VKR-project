@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { baseFormSchema } from "./AdminSignUpForm";
 import { z } from "zod";
@@ -25,10 +25,9 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown } from "lucide-react";
 import CSRFToken from "@/components/CSRFToken";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { InputGroup } from "react-bootstrap";
 import { ScrollArea } from "./ui/scroll-area";
 import {
     useFetchInstDirecDepartQuery,
@@ -76,7 +75,6 @@ const studentFormSchema = baseFormSchema
 type StudentFormSchema = z.infer<typeof studentFormSchema>;
 
 const StudentSignupForm = () => {
-    const [showPassword, setShowPassword] = useState(false);
     const { data: institutes } = useFetchInstDirecDepartQuery({
         option: "institutes",
     });
@@ -98,11 +96,9 @@ const StudentSignupForm = () => {
             // graduate_year: new Date().getFullYear(),
         },
     });
-    console.log(error);
     const navigate = useNavigate();
 
     const onSubmit = (data: StudentFormSchema) => {
-        console.log(data);
         register(data);
     };
 
@@ -120,91 +116,6 @@ const StudentSignupForm = () => {
                     {error ? error.message : ""}
                 </FormLabel>
                 <MainFormFields form={form} />
-                {/* <FormField
-                    control={form.control}
-                    name="last_name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Фамилия *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="first_name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Имя *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="patronymic"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Отчество" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Почта *" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                        <FormItem>
-                            <InputGroup className="flex-nowrap">
-                                <FormControl>
-                                    <Input
-                                        placeholder="Пароль *"
-                                        type={
-                                            showPassword ? "text" : "password"
-                                        }
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <InputGroup.Text
-                                    onClick={() =>
-                                        setShowPassword((prev) => !prev)
-                                    }>
-                                    {showPassword ? <EyeOff /> : <Eye />}
-                                </InputGroup.Text>
-                            </InputGroup>
-                            <FormMessage />
-                        </FormItem>
-                    )}></FormField>
-                <FormField
-                    control={form.control}
-                    name="password2"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input
-                                    type="password"
-                                    placeholder="Подтверждение пароля *"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> */}
                 <FormField
                     control={form.control}
                     name="institute"
